@@ -1,0 +1,130 @@
+.cartItems {
+    margin: 50px;
+}
+
+.cartItems hr {
+    height: 3px;
+    background-color: #e2e2e2;
+    border: 0;
+}
+
+.cartItems-format-main {
+    display: grid;
+    grid-template-columns: 0.5fr 3fr 0.5fr 0.5fr 0.5fr 0.5fr;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 0;
+    color: #454545;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.cartItems-format {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.cartIcon-product-icon {
+    height: 50px;
+}
+
+.cartItems-remove-icon {
+    width: 14px;
+    margin: auto;
+    cursor: pointer;
+}
+
+.cartItems-quantity {
+    width: 40px;
+    height: 30px;
+    border: 2px solid #ebebeb;
+    background-color: #fff;
+}
+
+.cartItems-down {
+    display: flex;
+    flex-direction: column;
+    margin: 50px 0;
+    gap: 30px;
+}
+
+.cartItems-total {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cartItems-total-item {
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+
+.cartItems-total-d {
+    text-decoration: underline;
+}
+
+.cartItems-total button {
+    width: 200px;
+    height: 45px;
+    outline: none;
+    border: none;
+    background-color: #ff5a5a;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cartItems-promoCode {
+    flex: 1;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.cartItems-promoCode p {
+    color: #555;
+    font-size: 18px;
+}
+
+.cartItems-promoBox {
+    width: auto;
+    max-width: 500px;
+    margin-top: 15px;
+    padding-left: 20px;
+    height: 50px;
+    background-color: #eaeaea;
+}
+
+.cartItems-promoBox input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 15px;
+    width: 330px;
+    height: 40px;
+}
+
+.cartItems-promoBox button {
+    width: 120px;
+    margin-left: 30px;
+    height: 50px;
+    font-size: 15px;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+}
+
+@media (max-width: 500px) {
+    .cartItems-format-main {
+        display: none;
+        grid-template-columns: 0.5fr 3fr 0.5fr;
+        gap: 10px;
+    }
+
+    .cartItems-format {
+        display: grid;
+    }
+}
