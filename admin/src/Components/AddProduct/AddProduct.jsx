@@ -1,8 +1,11 @@
 import './AddProduct.css';
 import upload_area from '../../assets/upload_area.svg';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function AddProduct() {
+    const navigate = useNavigate();
     const [image, setImage] = useState(false);
 
     const [productDetails, setProductDetails] = useState({
@@ -52,7 +55,10 @@ function AddProduct() {
             })
                 .then((response) => response.json())
                 .then((data) => {
-                    data.success ? alert('Add Product Successfully') : alert('Add Product Failed');
+                    if (data.success) {
+                        alert('Add Product Successfully');
+                        navigate('/list-product');
+                    } else alert('Add Product Failed');
                 });
         }
     };
@@ -117,6 +123,7 @@ function AddProduct() {
             <button onClick={addProduct} className='addProduct-btn'>
                 ADD
             </button>
+            <Link to={'/list-product'}>CANCEL</Link>
         </div>
     );
 }

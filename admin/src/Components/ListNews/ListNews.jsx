@@ -1,28 +1,28 @@
 import { useEffect, useState } from 'react';
 import React from 'react';
-import './ListProduct.css';
+import './ListNews.css';
 import { Link } from 'react-router-dom';
 import delete_icon from '../../assets/xmark-solid.svg';
 import edit_icon from '../../assets/pen-solid.svg';
 import add_icon from '../../assets/plus-solid.svg';
 
-function ListProduct() {
-    const [allProducts, setAllProducts] = useState([]);
+function ListNews() {
+    const [allNews, setAllNews] = useState([]);
 
-    const fetchInfo = async () => {
-        await fetch('http://localhost:4000/all-products')
+    const fetchNews = async () => {
+        await fetch('http://localhost:4000/all-news')
             .then((response) => response.json())
             .then((data) => {
-                setAllProducts(data);
+                setAllNews(data);
             });
     };
 
     useEffect(() => {
-        fetchInfo();
+        fetchNews();
     }, []);
 
-    const removeProduct = async (id) => {
-        await fetch('http://localhost:4000/remove-product', {
+    const removeNews = async (id) => {
+        await fetch('http://localhost:4000/delete-news', {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -30,50 +30,40 @@ function ListProduct() {
             },
             body: JSON.stringify({ id: id }),
         });
-        await fetchInfo();
+        await fetchNews();
     };
 
     return (
         <div className='listProduct'>
-            <h1>All products list</h1>
-            <Link to={'/add-product'} className='listProduct-btn'>
-                Add Product
+            <h1>All news list</h1>
+            <Link to={'/add-news'} className='listProduct-btn'>
+                Add News
                 <img className='listProduct-btn-image' src={add_icon} alt='' />
             </Link>
-            <div className='listProduct-format-main'>
+            <div className='listNews-format-main'>
                 <p>#</p>
-                <p>Products</p>
+                <p>Image</p>
                 <p>Title</p>
-                <p>Old price</p>
-                <p>New price</p>
-                <p>Category</p>
+                <p>Detail</p>
                 <p></p>
             </div>
             <div className='listProduct-allProducts'>
                 <hr />
-                {allProducts.map((product, index) => {
+                {allNews.map((news, index) => {
                     return (
                         <React.Fragment key={index}>
-                            <div className='listProduct-format-main listProduct-format'>
-                                <p>{product.id}</p>
-                                <img className='listProduct-product-icon' src={product.image} alt='' />
-                                <p>{product.name}</p>
-                                <p>
-                                    {product.old_price}
-                                    <span className='listProduct--product-d'>đ</span>
-                                </p>
-                                <p>
-                                    {product.new_price}
-                                    <span className='listProduct--product-d'>đ</span>
-                                </p>
-                                <p>{product.category}</p>
+                            <div className='listNews-format-main listProduct-format'>
+                                <p>{news.id}</p>
+                                <img className='listProduct-product-icon' src={news.image} alt='' />
+                                <p>{news.title}</p>
+                                <p>{news.detail}</p>
                                 <div className='listProduct-icon'>
-                                    <Link to={`/edit-product/${product.id}`}>
+                                    <Link to={`/edit-news/${news.id}`}>
                                         <img className='listProduct-edit-icon' src={edit_icon} alt='' />
                                     </Link>
                                     <img
                                         onClick={() => {
-                                            removeProduct(product.id);
+                                            removeNews(news.id);
                                         }}
                                         className='listProduct-remove-icon'
                                         src={delete_icon}
@@ -90,4 +80,4 @@ function ListProduct() {
     );
 }
 
-export default ListProduct;
+export default ListNews;

@@ -4,6 +4,6 @@
 
 @media (max-width: 800px) {
     .admin {
-        flex-direction: column;
+        /* flex-direction: column; */
     }
 }

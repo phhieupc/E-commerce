@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const cors = require('cors');
-const { log } = require('console');
 
 app.use(express.json());
 app.use(cors());
@@ -114,6 +113,30 @@ const Account = mongoose.model('Account', {
     },
 });
 
+// Schema creating for News model
+const News = mongoose.model('News', {
+    id: {
+        type: Number,
+        required: true,
+    },
+    title: {
+        type: String,
+        required: true,
+    },
+    image: {
+        type: String,
+        required: true,
+    },
+    detail: {
+        type: String,
+        required: true,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
 // Creating Endpoint for registering account
 app.post('/signup', async (req, res) => {
     let check1 = await Account.findOne({ username: req.body.username });
@@ -183,6 +206,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Creating endpoint for add product
 app.post('/add-product', async (req, res) => {
     let products = await Product.find({});
     let id;
@@ -210,6 +234,44 @@ app.post('/add-product', async (req, res) => {
     });
 });
 
+// Creating API for get product
+app.get('/get-product/:id', async (req, res) => {
+    try {
+        const product = await Product.findOne({ id: req.params.id });
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        res.json({ success: true, product });
+    } catch (error) {
+        console.error('Error fetching product:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+// Creating API for editing product
+app.post('/edit-product', async (req, res) => {
+    try {
+        const { id, name, image, category, new_price, old_price } = req.body;
+
+        const product = await Product.findOneAndUpdate(
+            { id },
+            { name, image, category, new_price, old_price },
+            { new: true },
+        );
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        res.json({ success: true, message: 'Product updated successfully', product });
+    } catch (error) {
+        console.error('Error editing product:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
 // Creating API for deleting product
 app.post('/remove-product', async (req, res) => {
     try {
@@ -230,6 +292,89 @@ app.get('/all-products', async (req, res) => {
     let products = await Product.find({});
     console.log('All products fetched');
     res.send(products);
+});
+
+// Creating API for getting all news
+app.get('/all-news', async (req, res) => {
+    let news = await News.find({});
+    console.log('All news fetched');
+    res.send(news);
+});
+
+// Creating API for adding news
+app.post('/add-news', async (req, res) => {
+    let news = await News.find({});
+    let id;
+    if (news.length > 0) {
+        let last_news_array = news.slice(-1);
+        let last_news = last_news_array[0];
+        id = last_news.id + 1;
+    } else {
+        id = 1;
+    }
+    const news_one = new News({
+        id,
+        title: req.body.title,
+        image: req.body.image,
+        detail: req.body.detail,
+    });
+    console.log(news_one);
+    await news_one.save();
+    console.log('Save successfully');
+    res.json({
+        success: true,
+        title: req.body.title,
+    });
+});
+
+// Creating API for getting news
+app.get('/get-news/:id', async (req, res) => {
+    try {
+        const news = await News.findOne({ id: req.params.id });
+
+        if (!news) {
+            return res.status(404).json({ success: false, message: 'News not found' });
+        }
+
+        res.json({ success: true, news });
+    } catch (error) {
+        console.error('Error fetching news:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+// Creating API for editing news
+app.post('/edit-news', async (req, res) => {
+    try {
+        const { id, title, image, detail } = req.body;
+        console.log(req.body);
+
+        const news = await News.findOneAndUpdate({ id }, { title, image, detail }, { new: true });
+
+        if (!news) {
+            return res.status(404).json({ success: false, message: 'News not found' });
+        }
+
+        res.json({ success: true, message: 'News updated successfully', news });
+    } catch (error) {
+        console.error('Error editing news:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+// Creating API for deleting news
+app.post('/delete-news', async (req, res) => {
+    try {
+        const deletedNews = await News.findOneAndDelete({ id: req.body.id });
+        if (!deletedNews) {
+            return res.status(404).json({ success: false, message: 'News not found' });
+        }
+        console.log('News deleted successfully');
+        res.json({ success: true, title: req.body.title });
+    } catch (error) {
+        console.error('Error deleting news:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
 });
 
 // Creating Endpoint for New collection data
