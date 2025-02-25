@@ -1,14 +1,55 @@
 import './Navbar.css';
 import logo from '../Assets/logo.png';
+import 'tippy.js/dist/tippy.css';
+import HeadLessTippy from '@tippyjs/react/headless';
 import cart_icon from '../Assets/cart_icon.png';
 import remove_icon from '../Assets/cart_cross_icon.png';
-import { useContext, useState } from 'react';
+import search_icon from '../Assets_2/magnifying-glass-solid.svg';
+import { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../../Context/ShopContext';
+import useDebounce from '../../Hooks/useDebounce';
 
 function Navbar() {
     const [menu, setMenu] = useState('shop');
+    const [search, setSearch] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
+    const [searchResult, setSearchResult] = useState([]);
+    const [showResult, setShowResult] = useState(false);
     const { getTotalCartItems } = useContext(ShopContext);
+
+    const debouncedValue = useDebounce(searchValue, 500);
+
+    useEffect(() => {
+        if (!debouncedValue.trim()) {
+            setSearchResult([]);
+            return;
+        }
+
+        const fetchApi = async () => {
+            try {
+                const response = await fetch(`http://localhost:4000/search?q=${encodeURIComponent(debouncedValue)}`);
+                const data = await response.json();
+                setSearchResult(data.data);
+            } catch (error) {
+                console.error('Error fetching search results:', error);
+                setSearchResult([]);
+            }
+        };
+
+        fetchApi();
+    }, [debouncedValue]);
+
+    const handleShowResult = () => {
+        setShowResult(false);
+    };
+
+    const handleChange = (e) => {
+        const searchValue = e.target.value;
+        if (!searchValue.startsWith(' ')) {
+            setSearchValue(searchValue);
+        }
+    };
 
     return (
         <div className='navbar'>
@@ -45,6 +86,55 @@ function Navbar() {
                 </li>
             </ul>
             <div className='nav-login-cart'>
+                <div className='nav-search-group'>
+                    <img
+                        onClick={() => {
+                            setSearch(!search);
+                        }}
+                        className='nav-search-icon'
+                        src={search_icon}
+                        alt=''
+                    />
+                    <HeadLessTippy
+                        interactive
+                        visible={showResult && searchResult.length > 0}
+                        render={(attrs) => (
+                            <div className='nav-search-result' tabIndex='-1' {...attrs}>
+                                {searchResult.map((product) => {
+                                    return (
+                                        <Link
+                                            className='nav-search-result-item'
+                                            onClick={() => {
+                                                setSearch(false);
+                                                setShowResult(false);
+                                            }}
+                                            to={`/product/${product.id}`}
+                                            key={product.id}
+                                        >
+                                            {product.name}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        onClickOutside={handleShowResult}
+                    >
+                        <div className='nav-search-container'>
+                            {search && (
+                                <input
+                                    value={searchValue}
+                                    type='text'
+                                    className='nav-search-input'
+                                    placeholder='Tìm kiếm sản phẩm...'
+                                    spellCheck={false}
+                                    onChange={handleChange}
+                                    onFocus={() => setShowResult(true)}
+                                    autoFocus
+                                />
+                            )}
+                        </div>
+                    </HeadLessTippy>
+                </div>
                 {localStorage.getItem('auth-token') ? (
                     <button
                         onClick={() => {

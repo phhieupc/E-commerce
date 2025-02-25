@@ -502,6 +502,24 @@ app.get('/get-cart', fetchAccount, async (req, res) => {
     }
 });
 
+// Creating API for searching products
+app.get('/search', async (req, res) => {
+    try {
+        const { q } = req.query;
+
+        if (!q) {
+            return res.status(400).json({ message: 'Query parameter "q" is required' });
+        }
+
+        const products = await Product.find({ name: { $regex: q, $options: 'i' } }, 'name id');
+
+        res.json({ data: products });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 // API creation
 app.listen(port, (error) => {
     if (!error) {
