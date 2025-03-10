@@ -4,6 +4,7 @@ import EditNews from '../../Components/EditNews/EditNews';
 import EditProduct from '../../Components/EditProduct/EditProduct';
 import ListAccount from '../../Components/ListAccount/ListAccount';
 import ListNews from '../../Components/ListNews/ListNews';
+import ListOrder from '../../Components/ListOrder/ListOrder';
 import ListProduct from '../../Components/ListProduct/ListProduct';
 import Sidebar from '../../Components/Sidebar/Sidebar';
 import './Admin.css';
@@ -20,6 +21,7 @@ function Admin() {
                 <Route path='/list-product' element={<ListProduct />} />
                 <Route path='/list-news' element={<ListNews />} />
                 <Route path='/list-account' element={<ListAccount />} />
+                <Route path='/list-order' element={<ListOrder />} />
                 <Route path='/edit-product/:id' element={<EditProduct />} />
                 <Route path='/edit-news/:id' element={<EditNews />} />
             </Routes>

@@ -1,6 +1,10 @@
 .item {
-    width: 220px;
+    width: 200px;
     font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
 }
 
 .item p {
@@ -10,6 +14,11 @@
 .item-image {
     width: 200px;
     height: 250px;
+}
+
+.item-image:hover {
+    transform: scale(1.05);
+    transition: 0.6s;
 }
 
 .item-prices {
@@ -34,9 +43,29 @@
     text-decoration: underline;
 }
 
-.item:hover {
-    transform: scale(1.05);
-    transition: 0.6s;
+.item button {
+    padding: 15px;
+    width: 200px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    background-color: #ff4141;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    align-items: flex-end;
+}
+
+.item-btn {
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.item button:hover {
+    background-color: #d83a3a;
+    transition: 0.3s;
 }
 
 @media (max-width: 1024px) {

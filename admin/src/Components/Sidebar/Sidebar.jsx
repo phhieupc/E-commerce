@@ -4,6 +4,7 @@ import home_icon from '../../assets/house-solid.svg';
 import product_icon from '../../assets/table-cells-solid.svg';
 import account_icon from '../../assets/users-solid.svg';
 import news_icon from '../../assets/newspaper-solid.svg';
+import order_icon from '../../assets/clipboard-solid.svg';
 
 function Sidebar() {
     return (
@@ -34,6 +35,12 @@ function Sidebar() {
                     <li className='sidebar-item'>
                         <img className='sidebar-item-icon' src={news_icon} alt='' />
                         <p>News</p>
+                    </li>
+                </Link>
+                <Link to={'/list-order'}>
+                    <li className='sidebar-item'>
+                        <img className='sidebar-item-icon' src={order_icon} alt='' />
+                        <p>Order</p>
                     </li>
                 </Link>
             </ul>

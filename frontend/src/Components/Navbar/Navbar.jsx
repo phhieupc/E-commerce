@@ -90,6 +90,7 @@ function Navbar() {
                     <img
                         onClick={() => {
                             setSearch(!search);
+                            setSearchValue('');
                         }}
                         className='nav-search-icon'
                         src={search_icon}

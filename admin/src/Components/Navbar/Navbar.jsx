@@ -1,6 +1,6 @@
 import './Navbar.css';
 import navLogo from '../../assets/nav-logo.svg';
-import navProfile from '../../assets/nav-profile.svg';
+import avatar from '../../assets/avatar.jpeg';
 import { Link } from 'react-router-dom';
 
 function Navbar() {
@@ -9,7 +9,7 @@ function Navbar() {
             <Link to={'/'}>
                 <img src={navLogo} alt='' className='nav-logo' />
             </Link>
-            <img src={navProfile} className='nav-profile' alt='' />
+            <img src={avatar} className='nav-avatar' alt='' />
         </div>
     );
 }

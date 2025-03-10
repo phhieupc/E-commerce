@@ -12,8 +12,11 @@
     width: 170px;
 }
 
-.nav-profile {
-    width: 70px;
+.nav-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
 @media (max-width: 800px) {

@@ -22,15 +22,18 @@ function ListNews() {
     }, []);
 
     const removeNews = async (id) => {
-        await fetch('http://localhost:4000/delete-news', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-type': 'application/json',
-            },
-            body: JSON.stringify({ id: id }),
-        });
-        await fetchNews();
+        const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa tin tức này không?');
+        if (confirmDelete) {
+            await fetch('http://localhost:4000/delete-news', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify({ id: id }),
+            });
+            await fetchNews();
+        }
     };
 
     return (

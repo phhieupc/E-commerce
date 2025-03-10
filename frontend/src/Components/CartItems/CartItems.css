@@ -54,6 +54,11 @@
     gap: 15px;
 }
 
+.cartItems-total-btns {
+    display: flex;
+    gap: 50px;
+}
+
 .cartItems-total-item {
     font-size: 18px;
     display: flex;
@@ -115,6 +120,65 @@
     background-color: black;
     color: white;
     cursor: pointer;
+}
+
+.pay-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 500px;
+    margin-top: 20px;
+}
+
+.pay-info input {
+    height: 35px;
+    width: 100%;
+    padding-left: 20px;
+    border: 1px solid #c9c9c9;
+    outline: none;
+    color: #5c5c5c;
+    font-size: 16px;
+    border-radius: 10px;
+}
+
+.pay-info button {
+    height: 35px;
+    color: white;
+    background-color: #ff4141;
+    margin-top: 20px;
+    border: none;
+    font-size: 17px;
+    font-weight: 500;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.pay-info label {
+    text-align: left;
+    font-size: 18px;
+    margin-bottom: -12px;
+}
+
+@media (max-width: 800px) {
+    .cartItems-promoBox input {
+        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 13px;
+    }
+
+    .cartItems-promoBox button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 10px;
+        margin-left: -20px;
+    }
+
+    .pay-info {
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 500px) {

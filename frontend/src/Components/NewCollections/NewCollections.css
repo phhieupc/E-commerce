@@ -21,10 +21,9 @@
 
 .collections {
     display: grid;
-    /* display: flex; */
     grid-template-columns: 1fr 1fr 1fr 1fr;
     margin-top: 50px;
-    gap: 30px;
+    gap: 40px;
 }
 
 @media (max-width: 1024px) {

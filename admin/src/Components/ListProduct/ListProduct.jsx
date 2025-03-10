@@ -22,15 +22,18 @@ function ListProduct() {
     }, []);
 
     const removeProduct = async (id) => {
-        await fetch('http://localhost:4000/remove-product', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-type': 'application/json',
-            },
-            body: JSON.stringify({ id: id }),
-        });
-        await fetchInfo();
+        const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');
+        if (confirmDelete) {
+            await fetch('http://localhost:4000/remove-product', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify({ id: id }),
+            });
+            await fetchInfo();
+        }
     };
 
     return (

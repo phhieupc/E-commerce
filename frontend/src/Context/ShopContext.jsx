@@ -59,6 +59,8 @@ const ShopContextProvider = ({ children }) => {
                 .then((data) => console.log('Server response:', data))
                 .catch((error) => console.error('Lỗi thêm vào giỏ hàng:', error));
         }
+
+        alert('Sản phẩm đã được thêm vào giỏ hàng');
     };
 
     const removeFromCart = (itemId) => {

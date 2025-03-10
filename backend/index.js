@@ -6,9 +6,114 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const cors = require('cors');
+const crypto = require('crypto');
 
+app.use(express.static('public'));
 app.use(express.json());
 app.use(cors());
+
+require('dotenv').config();
+const querystring = require('qs');
+
+const moment = require('moment-timezone');
+
+const vietnamTime = moment().tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss');
+
+console.log(vietnamTime);
+
+const vnp_TmnCode = process.env.VNP_TMNCODE;
+const vnp_HashSecret = process.env.VNP_HASHSECRET;
+const vnp_Url = process.env.VNP_URL;
+const vnp_ReturnUrl = process.env.VNP_RETURNURL;
+
+function sortObject(obj) {
+    let sorted = {};
+    let str = [];
+    let key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            str.push(encodeURIComponent(key));
+        }
+    }
+    str.sort();
+    for (key = 0; key < str.length; key++) {
+        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, '+');
+    }
+    return sorted;
+}
+
+app.post('/create_payment_url', (req, res) => {
+    try {
+        let ipAddr = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+        let { amount, bankCode, orderDescription, orderType, language } = req.body;
+
+        if (!amount || !orderDescription || !orderType) {
+            return res.status(400).json({ message: 'Thiếu thông tin yêu cầu' });
+        }
+
+        let date = new Date();
+        let createDate = moment().format('YYYYMMDDHHmmss');
+        let expireDate = moment().add(15, 'minutes').format('YYYYMMDDHHmmss');
+        let orderId = moment(date).format('HHmmss');
+
+        let vnp_Params = {
+            vnp_Version: '2.1.0',
+            vnp_Command: 'pay',
+            vnp_TmnCode: vnp_TmnCode,
+            vnp_Locale: language || 'vn',
+            vnp_CurrCode: 'VND',
+            vnp_TxnRef: orderId,
+            vnp_OrderInfo: orderDescription,
+            vnp_OrderType: orderType,
+            vnp_Amount: amount * 100,
+            vnp_ReturnUrl: vnp_ReturnUrl,
+            vnp_IpAddr: ipAddr,
+            vnp_CreateDate: createDate,
+            vnp_ExpireDate: expireDate,
+        };
+
+        if (bankCode) {
+            vnp_Params['vnp_BankCode'] = bankCode;
+        }
+
+        vnp_Params = sortObject(vnp_Params);
+        let signData = querystring.stringify(vnp_Params, { encode: false });
+        let signed = crypto.createHmac('sha512', Buffer.from(vnp_HashSecret, 'utf-8')).update(signData).digest('hex');
+
+        vnp_Params['vnp_SecureHash'] = signed;
+        let paymentUrl = `${vnp_Url}?${querystring.stringify(vnp_Params, { encode: false })}`;
+        res.json({ paymentUrl });
+    } catch (error) {
+        console.error('Error creating payment URL:', error);
+        res.status(500).json({ message: 'Lỗi máy chủ' });
+    }
+});
+
+app.get('/vnpay_return', (req, res) => {
+    const vnp_Params = req.query;
+    const secureHash = vnp_Params['vnp_SecureHash'];
+    delete vnp_Params['vnp_SecureHash'];
+    delete vnp_Params['vnp_SecureHashType'];
+    const sortedParams = sortObject(vnp_Params);
+    const signData = querystring.stringify(sortedParams, { encode: false });
+    const hmac = crypto.createHmac('sha512', vnp_HashSecret);
+    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
+    if (secureHash === signed) {
+        const orderId = vnp_Params['vnp_TxnRef'];
+        const rspCode = vnp_Params['vnp_ResponseCode'];
+        if (rspCode === '00') {
+            // Cập nhật trạng thái đơn hàng
+            res.render('success', { code: '00' });
+        } else {
+            // Thanh toán không thành công
+            res.render('success', { code: '01' });
+        }
+    } else {
+        // Dữ liệu không hợp lệ
+        res.render('success', { code: '97' });
+    }
+});
 
 // Database connection with mongodb
 mongoose
@@ -80,6 +185,73 @@ const Product = mongoose.model('Product', {
     },
 });
 
+// Schema creating for Order model
+const Order = mongoose.model('Order', {
+    id: {
+        type: Number,
+        required: true,
+    },
+    code: {
+        type: String,
+        unique: true,
+        required: true,
+    },
+    customerName: {
+        type: String,
+        required: true,
+    },
+    phone: {
+        type: String,
+        required: true,
+    },
+    address: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+    },
+    totalAmount: {
+        type: Number,
+        required: true,
+    },
+    status: {
+        type: String,
+        required: true,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
+// Schema creating for OrderDetail model
+const OrderDetail = mongoose.model('OrderDetail', {
+    orderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order', // Liên kết với bảng Order
+        required: true,
+    },
+    productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product', // Liên kết với bảng Product
+        required: true,
+    },
+    quantity: {
+        type: Number,
+        required: true,
+    },
+    price: {
+        type: Number,
+        required: true,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
 // Schema creating for Account model
 const Account = mongoose.model('Account', {
     id: {
@@ -135,6 +307,64 @@ const News = mongoose.model('News', {
         type: Date,
         default: Date.now,
     },
+});
+
+// Creating Endpoint for adding Order
+app.post('/order', async (req, res) => {
+    let order = await Order.find({});
+    let id;
+    if (order.length > 0) {
+        let last_order_array = order.slice(-1);
+        let last_order = last_order_array[0];
+        id = last_order.id + 1;
+    } else {
+        id = 1;
+    }
+    try {
+        const { customerName, phone, address, email, totalAmount, status } = req.body;
+
+        // Tạo đơn hàng mới (mã code sẽ tự động sinh trong middleware)
+        const newOrder = new Order({
+            id,
+            code: `DH${id}`,
+            customerName,
+            phone,
+            address,
+            email,
+            totalAmount,
+            status: status || 'Chờ thanh toán',
+        });
+
+        await newOrder.save();
+        res.status(201).json({ message: 'Tạo đơn hàng thành công!', order: newOrder });
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server', error: error.message });
+    }
+});
+
+// Creating API for getting order
+app.get('/all-orders', async (req, res) => {
+    let orders = await Order.find({});
+    console.log('All orders fetched');
+    res.send(orders);
+});
+
+// Creating API for updating order
+app.post('/update-order', async (req, res) => {
+    try {
+        const { id, status } = req.body;
+
+        const order = await Order.findOneAndUpdate({ id }, { status }, { new: true });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        res.json({ success: true, message: 'Order updated successfully', order });
+    } catch (error) {
+        console.error('Error editing order:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
 });
 
 // Creating Endpoint for registering account
